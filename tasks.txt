@@ -1,0 +1,95 @@
+Assignment 1: Fixed-Length File Processing
+Objective:
+Write a C program that processes a file (file1.txt) with fixed-length lines (10 characters each). The program will read the content line by line, reverse each line, and write the reversed lines into another file (file2.txt).
+________________________________________
+Requirements:
+1.	File Format:
+	* Each line in file1.txt is exactly 10 characters.
+	* If a line is shorter, it is padded with spaces to reach 10 characters.
+2.	Operations to Use:
+	* creat, open, close, read, write
+3.	Steps:
+	1. Create and write a file (file1.txt) with user input.
+	2. Ensure each line is padded to 10 characters.
+	3. Open file1.txt and read it line by line (10 bytes at a time).
+	4. Reverse each 10-character line.
+	5. Write the reversed lines to another file (file2.txt).
+________________________________________
+Example
+Input (file1.txt):
+Copy code
+Hello     
+World     
+Programming
+Output (file2.txt):
+markdown
+Copy code
+     olleH
+     dlroW
+gnimmargorP
+
+
+
+Assignment 2: Synchronizing Critical Sections
+Objective:
+Write a C program to demonstrate a critical section problem where two threads increment a shared counter. Synchronize the threads using:
+1.	POSIX Spin Locks
+2.	POSIX Mutexes
+3.	POSIX Semaphores
+________________________________________
+Requirements:
+1.	Critical Section:
+	* The shared counter is a global variable.
+	* Each thread increments the counter 1,000,000 times.
+2.	Initial Setup:
+	* Without synchronization, the program must show race conditions (e.g., incorrect counter values).
+3.	Synchronization:
+	You are required to modify the program to use:
+	* POSIX spin locks.
+	* POSIX mutexes.
+	* POSIX semaphores.
+________________________________________
+Example Output:
+1.	Without synchronization:
+Final Counter: 1954782 (incorrect due to race conditions)
+2.	With spin locks/mutexes/semaphores:
+Final Counter: 2000000 (correct)
+
+Skeleton Code:
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <unistd.h>
+
+#define NUM_ITERATIONS 1000000
+
+// Shared counter
+volatile int counter = 0;
+
+// Function for incrementing the counter (Critical Section)
+void *increment_counter(void *arg) {
+    for (int i = 0; i < NUM_ITERATIONS; i++) {
+        // Critical Section: Increment the shared counter
+	// Use all 3 mechanisms to sync this section. Keep two of them commented out.
+        counter++;
+    }
+    return NULL;
+}
+
+int main() {
+    pthread_t thread1, thread2;
+
+    // Create two threads
+    pthread_create(&thread1, NULL, increment_counter, NULL);
+    pthread_create(&thread2, NULL, increment_counter, NULL);
+
+    // Wait for threads to finish
+    pthread_join(thread1, NULL);
+    pthread_join(thread2, NULL);
+
+    // Print the final value of the counter
+    printf("Final Counter: %d\n", counter);
+    return 0;
+}
+
