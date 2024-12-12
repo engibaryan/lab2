@@ -3,14 +3,17 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <semaphore.h>
+#include <time.h>
 
 #define NUM_ITERATIONS 1000000
 
 volatile int counter = 0;
 
-#define USE_SPIN_LOCK
+struct timespec start, end;
+
+//#define USE_SPIN_LOCK
 //#define USE_MUTEX
-//#define USE_SEMAPHORE
+#define USE_SEMAPHORE
 
 #ifdef USE_SPIN_LOCK
 pthread_spinlock_t spinlock;
@@ -39,11 +42,14 @@ void *increment_counter(void *arg) {
         counter++;
         sem_post(&semaphore);
 #else
-        // No synchronization
         counter++;
 #endif
     }
     return NULL;
+}
+
+double calculate_time(struct timespec start, struct timespec end) {
+    return (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
 }
 
 int main() {
@@ -57,11 +63,17 @@ int main() {
     sem_init(&semaphore, 0, 1); // Binary semaphore
 #endif
 
+    clock_gettime(CLOCK_MONOTONIC, &start);
     pthread_create(&thread1, NULL, increment_counter, NULL);
     pthread_create(&thread2, NULL, increment_counter, NULL);
 
     pthread_join(thread1, NULL);
     pthread_join(thread2, NULL);
+
+    clock_gettime(CLOCK_MONOTONIC, &end);
+
+    double elapsed_time = calculate_time(start, end);
+    printf("Execution Time: %.6f seconds\n", elapsed_time);
 
     printf("Final Counter: %d\n", counter);
 

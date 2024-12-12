@@ -70,8 +70,11 @@ int main() {
         }
         buffer[LINE_LENGTH] = '\0';
 
-        reverse_line(buffer);         
-        write(file2, buffer, LINE_LENGTH);
+        reverse_line(buffer);
+	char output_line[LINE_LENGTH + 2];
+        snprintf(output_line, sizeof(output_line), "%s\n", buffer);
+	write(file2, output_line, strlen(output_line));
+
     }
 
     if (bytes_read < 0) {
